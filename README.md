@@ -1,4 +1,4 @@
-fbmsg format
+#fbmsg format
 ===
 
-Add HTML formatting in Facebook messages through markdown syntax.
+Enable HTML formatting in Facebook messages through markdown syntax.
