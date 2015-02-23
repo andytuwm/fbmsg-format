@@ -47,7 +47,7 @@ function process(messages) {
       msg.innerHTML = msg.innerText;
       msg.setAttribute('formatted',true);
     } else {
-      console.log('already formatted.');
+      //console.log('already formatted.');
     }
   });
 }
