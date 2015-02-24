@@ -2,7 +2,7 @@ var chatCount = 0;
 
 $(window).load( function() {
 
-  setInterval(function(){process(fetchMsgs())},2000);
+  setInterval(function(){checkUpdate()},2000);
 
   /*var injectedScript = document.createElement('script');
   injectedScript.src = chrome.extension.getURL('inject.js');
@@ -16,14 +16,8 @@ $(window).load( function() {
 
 
 // Returns a jQuery object of all fb chat window messages in view.
-function fetchMsgs() {
-  var convo = $('#ChatTabsPagelet .fbNub div.conversation');
-  var chat_lists = convo.find('div.direction_ltr span span');
+function fetchMsgs(chat_lists) {
 
-  var prev = chatCount;
-  chatCount = chat_lists.length;
-
-  if(chatCount > prev) {
     chat_lists = chat_lists.not('.emoticon,.emoticon_text');
 
     chat_lists = chat_lists.filter( function() {
@@ -34,11 +28,8 @@ function fetchMsgs() {
       return true;
     });
 
-  } else {
-    chat_lists.splice(0,chatCount);
-  }
   //console.log(chat_lists);
-  return chat_lists;
+  process(chat_lists);
 }
 
 function process(messages) {
@@ -50,5 +41,19 @@ function process(messages) {
   });
 }
 
+// Check if new messages have appeared.
+function checkUpdate() {
+  var convo = $('#ChatTabsPagelet .fbNub div.conversation');
+  var chats = convo.find('div.direction_ltr span span');
 
+  var prev = chatCount;
+  chatCount = chats.length;
 
+  if (chatCount > prev) {
+    fetchMsgs(chats);
+    console.log(chats);
+  } else {
+    chats.splice(0,chatCount);
+    console.log(chats);
+  }
+}
