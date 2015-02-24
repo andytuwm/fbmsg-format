@@ -28,7 +28,7 @@ function fetchMsgs() {
 
     chat_lists = chat_lists.filter( function() {
       //console.log(this.innerHTML);
-      if(this.innerHTML.match(/^(<span)/)){
+      if(this.innerHTML.match(/(<span)|(<a)/)){
         return false;
       }
       return true;
@@ -46,8 +46,6 @@ function process(messages) {
     if( msg.getAttribute('formatted') != 'true'){
       msg.innerHTML = msg.innerText;
       msg.setAttribute('formatted',true);
-    } else {
-      //console.log('already formatted.');
     }
   });
 }
