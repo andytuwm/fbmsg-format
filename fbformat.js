@@ -1,11 +1,8 @@
 var chatCount = 0;
 
-//$('#ChatTabsPagelet').ready(function() {
-
-//});
 $(window).load( function() {
 
-  setInterval(function(){checkUpdate()},5000);
+  setInterval(function(){checkUpdate()},2000);
 
   /*var injectedScript = document.createElement('script');
   injectedScript.src = chrome.extension.getURL('inject.js');
@@ -16,17 +13,15 @@ $(window).load( function() {
 
 });
 
-
-
-// Returns a jQuery object of all fb chat window messages in view.
-function fetchMsgs(chat_lists) {
+// Filters out extra <span>/<a> tags from the jQuery object passed in
+function filterMsgs(chat_lists) {
     //console.log(chat_lists);
-
+    chat_lists = chat_lists.not('.emoticon,.emoticon_text');
     chat_lists = chat_lists.filter( function() {
-
       //console.log($(this).attr('formatted'));
       if(this.innerHTML.match(/(<span)|(<a)/)) {
-      //|| $(this).attr('formatted') == 'true'){
+        // Despite removing it from processing, we still need to mark it as formatted
+        // to prevent the next poll from selecting this element.
         $(this).attr('formatted','true');
         return false;
       }
@@ -37,35 +32,36 @@ function fetchMsgs(chat_lists) {
   process(chat_lists);
 }
 
+// Set the innerText as innerHTML so that fb will display it as HTML
 function process(messages) {
-
   messages.each( function(index, msg) {
-    //msg.innerHTML = msg.innerText;
     //console.log($(msg).attr('formatted'));
     var m = $(msg);
     m.html(msg.innerText);
+    // Mark it as formatted so that this element is not selected on next poll,
+    // saving on processing time
     m.attr('formatted','true');
-    //m.data('formatted', true);
   });
 }
 
 // Check if new messages have appeared.
 function checkUpdate() {
   var bench = performance.now();
-  //var chats = $("#ChatTabsPagelet .fbNub div.conversation div.direction_ltr span span");
+
+  var chats = $("#ChatTabsPagelet .fbNub div.conversation div.direction_ltr span span:not([formatted='true']");
+//console.log('before');
 //console.log(chats);
-console.log('chatlog');
-  var chats = $("#ChatTabsPagelet .fbNub div.conversation div.direction_ltr span span:not([formatted='true'], .emoticon, .emoticon_text)");
-console.log(chats);
   var prev = chatCount;
   chatCount = chats.length;
 
   if (chatCount > prev) {
-    fetchMsgs(chats);
+    filterMsgs(chats);
     //console.log(chats);
   } else {
     chats.splice(0,chatCount);
     //console.log(chats);
   }
+//console.log('after');
+//console.log(chats);
   console.log(performance.now() - bench);
 }
