@@ -48,20 +48,17 @@ function process(messages) {
 function checkUpdate() {
   var bench = performance.now();
 
-  var chats = $("#ChatTabsPagelet .fbNub div.conversation div.direction_ltr span span:not([formatted='true']");
-//console.log('before');
+  //{OLD SELECTOR FOR REFERENCE}var chats = $("#ChatTabsPagelet .fbNub div.conversation div.direction_ltr span span:not([formatted='true']");
+  var chats = $("#ChatTabsPagelet .direction_ltr span span:not([formatted='true']");
 //console.log(chats);
   var prev = chatCount;
   chatCount = chats.length;
 
   if (chatCount > prev) {
     filterMsgs(chats);
-    //console.log(chats);
   } else {
     chats.splice(0,chatCount);
-    //console.log(chats);
   }
-//console.log('after');
-//console.log(chats);
+
   console.log(performance.now() - bench);
 }
