@@ -1,8 +1,21 @@
 var chatCount = 0;
 
+var openChatInterval = 1000;
+
 $(window).load( function() {
   //checkUpdate();
-  setInterval(function(){checkUpdate()},2000);
+  //setInterval(function(){checkUpdate()},2000);
+
+  var openChat = false;
+  setInterval(function() {
+    openChat = checkOpen();
+  },openChatInterval);
+
+  setInterval(function() {
+    if (openChat) {
+      checkUpdate();
+    }
+  },2000);
 
   /*var injectedScript = document.createElement('script');
   injectedScript.src = chrome.extension.getURL('inject.js');
@@ -64,12 +77,12 @@ function process(messages) {
   });
 }
 
-// Check if new messages have appeared.
+// Check if new messages have appeared. If appeared, update the new message.
 function checkUpdate() {
   var bench = performance.now();
 
   //{OLD SELECTOR FOR REFERENCE}var chats = $("#ChatTabsPagelet .fbNub div.conversation div.direction_ltr span span:not([formatted='true']");
-  var chats = $("#ChatTabsPagelet .direction_ltr span span:not([formatted='true']");
+  var chats = $("#ChatTabsPagelet .opened .direction_ltr span span:not([formatted='true']");
 //console.log(chats);
   var prev = chatCount;
   chatCount = chats.length;
@@ -81,4 +94,19 @@ function checkUpdate() {
   }
 
   console.log(performance.now() - bench);
+}
+
+function checkOpen() {
+  var bench = performance.now();
+  var openedChats = $("#ChatTabsPagelet").find(".opened");
+  //console.log(openedChats);
+  if (openedChats.length > 0) {
+    openChatInterval = 7000;
+    console.log(performance.now() - bench);
+    return true;
+  } else {
+    openChatInterval = 1000;
+    console.log(performance.now() - bench);
+    return false;
+  }
 }
