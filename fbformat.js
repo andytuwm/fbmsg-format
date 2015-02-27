@@ -1,20 +1,21 @@
 var chatCount = 0;
-
 var openChatInterval = 1000;
+var openChat = false;
 
 $(window).load( function() {
   //checkUpdate();
   //setInterval(function(){checkUpdate()},2000);
 
-  var openChat = false;
-  setInterval(function() {
-    openChat = checkOpen();
-  },openChatInterval);
+  // setTimeout used and called recursively rather than setInterval in order to
+  // be able to change the timing interval between calls of checkOpen()
+  setTimeout(runCheck, openChatInterval);
 
   setInterval(function() {
+    //var bench = performance.now();
     if (openChat) {
       checkUpdate();
     }
+    //console.log(performance.now() - bench);
   },2000);
 
   /*var injectedScript = document.createElement('script');
@@ -58,7 +59,6 @@ function filterMsgs(chat_lists) {
         t.attr('formatted','true');
         return false;
       }
-
       return true;
     });
   //console.log(chat_lists);
@@ -67,8 +67,8 @@ function filterMsgs(chat_lists) {
 
 // Set the innerText as innerHTML so that fb will display it as HTML
 function process(messages) {
+
   messages.each( function(index, msg) {
-    //console.log($(msg).attr('formatted'));
     var m = $(msg);
     m.html(msg.innerText);
     // Mark it as formatted so that this element is not selected on next poll,
@@ -79,34 +79,37 @@ function process(messages) {
 
 // Check if new messages have appeared. If appeared, update the new message.
 function checkUpdate() {
-  var bench = performance.now();
 
   //{OLD SELECTOR FOR REFERENCE}var chats = $("#ChatTabsPagelet .fbNub div.conversation div.direction_ltr span span:not([formatted='true']");
   var chats = $("#ChatTabsPagelet .opened .direction_ltr span span:not([formatted='true']");
 //console.log(chats);
   var prev = chatCount;
   chatCount = chats.length;
-
+  // If there are more than previous count, there has been an update
   if (chatCount > prev) {
     filterMsgs(chats);
   } else {
     chats.splice(0,chatCount);
   }
-
-  console.log(performance.now() - bench);
 }
 
+// Check if any chat tabs are open or not
 function checkOpen() {
-  var bench = performance.now();
   var openedChats = $("#ChatTabsPagelet").find(".opened");
   //console.log(openedChats);
   if (openedChats.length > 0) {
-    openChatInterval = 7000;
-    console.log(performance.now() - bench);
+    openChatInterval = 5000;
     return true;
   } else {
     openChatInterval = 1000;
-    console.log(performance.now() - bench);
     return false;
   }
 }
+
+var runCheck = function() {
+    //var bench = performance.now();
+    openChat = checkOpen();
+    //var mark = performance.now() - bench
+    //console.log('check: ' + mark);
+    setTimeout(runCheck, openChatInterval);
+  };
