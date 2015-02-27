@@ -6,6 +6,7 @@ var inFullChat = false;
 $(window).load( function() {
   //checkUpdate();
 
+  // Check if in full conversation view
   setInterval(function() {
     //var benchmark = performance.now();
     inFullChat = isFullChat();
@@ -20,6 +21,14 @@ $(window).load( function() {
     //var bench = performance.now();
     if (openChat) {
       checkUpdate();
+    }
+    //console.log(performance.now() - bench);
+  },2000);
+
+  setInterval(function() {
+    //var bench = performance.now();
+    if (inFullChat) {
+      //TODO
     }
     //console.log(performance.now() - bench);
   },2000);
