@@ -1,10 +1,16 @@
 var chatCount = 0;
 var openChatInterval = 1000;
 var openChat = false;
+var inFullChat = false;
 
 $(window).load( function() {
   //checkUpdate();
-  //setInterval(function(){checkUpdate()},2000);
+
+  setInterval(function() {
+    //var benchmark = performance.now();
+    inFullChat = isFullChat();
+    //console.log(performance.now() - benchmark);
+  },1000);
 
   // setTimeout used and called recursively rather than setInterval in order to
   // be able to change the timing interval between calls of checkOpen()
@@ -97,7 +103,7 @@ function checkUpdate() {
 function checkOpen() {
   var openedChats = $("#ChatTabsPagelet").find(".opened");
   //console.log(openedChats);
-  if (openedChats.length > 0) {
+  if (openedChats.length) {
     openChatInterval = 5000;
     return true;
   } else {
@@ -106,10 +112,23 @@ function checkOpen() {
   }
 }
 
+// Function to assist in changing interval time of checkOpen()
 var runCheck = function() {
     //var bench = performance.now();
     openChat = checkOpen();
     //var mark = performance.now() - bench
     //console.log('check: ' + mark);
     setTimeout(runCheck, openChatInterval);
-  };
+};
+
+// Check if current page is showing a full fb message conversation.
+function isFullChat() {
+  if(~$('#pageTitle').text().indexOf('Messages')) {
+    return true;
+  // ~ is a bitwise inverse. If indexOf() does not find substring,
+  // then it returns -1, a truthy value, which is all 1's. Inversing that
+  // obtains all 0's, which is 0, a false value. Thus ~ makes indexOf()
+  // useful for checking if a specific substring exists or not.
+  }
+  return false;
+}
