@@ -53,8 +53,9 @@ function filterMsgs(chat_lists) {
       // If this element has two or more children, it must contain emoticons.
       // Ignore <span>'s that have only one children; emoticons consist of two <span>'s.
       // We will process this first before process() because it's easier.
-      var t = $(this);
-      if (t.children().length > 1) {
+
+      if (this.getElementsByTagName('span').length) {
+        var t = $(this);
         // Split the span element into emoticons and text nodes, then check them one by one
         t.contents().each( function(index, el) {
           if(el.nodeType === 3) {
@@ -154,10 +155,9 @@ function fullCheckUpdate() {
 
 function fullConvoFormat(messages) {
   messages = messages.filter( function() {
-    if(this.getElementsByClassName('emoticon').length) {
+    if(this.getElementsByTagName('span').length) {
        $(this).contents().each( function(index, el) {
           if(el.nodeType === 3) {
-            // If el is a text node(3), wrap it in <span> to turn it into HTML.
             // We use <span> here because the element we use to select messages
             // is a <p> in full conversations.
             var newEl = $(el).wrap("<span></span>").parent();
