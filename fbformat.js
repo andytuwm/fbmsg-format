@@ -18,17 +18,17 @@ $(window).load( function() {
   setTimeout(runCheck, openChatInterval);
 
   setInterval(function() {
-    var bench = performance.now();
+    //var bench = performance.now();
     if (openChat) {
       checkUpdate();
     }
-    console.log(performance.now() - bench);
+    //console.log(performance.now() - bench);
   },2000);
 
   setInterval(function() {
     //var bench = performance.now();
     if (inFullChat) {
-      //TODO
+      fullCheckUpdate();
     }
     //console.log(performance.now() - bench);
   },2000);
@@ -84,18 +84,16 @@ function filterMsgs(chat_lists) {
 function process(messages) {
 
   messages.each( function(index, msg) {
-    var m = $(msg);
-    m.html(msg.innerText);
+    $(msg).html(msg.innerText);
     // Mark it as formatted so that this element is not selected on next poll,
     // saving on processing time
-    m.attr('formatted','true');
+    msg.setAttribute('formatted','true');
   });
 }
 
 // Check if new messages have appeared. If appeared, update the new message.
 function checkUpdate() {
 
-  //{OLD SELECTOR FOR REFERENCE}var chats = $("#ChatTabsPagelet .fbNub div.conversation div.direction_ltr span span:not([formatted='true']");
   var chats = $("#ChatTabsPagelet .opened .direction_ltr span span:not([formatted='true']");
 //console.log(chats);
   var prev = chatCount;
@@ -140,4 +138,45 @@ function isFullChat() {
   // useful for checking if a specific substring exists or not.
   }
   return false;
+}
+
+function fullCheckUpdate() {
+  //var bench = performance.now();
+  var chats = $("#webMessengerRecentMessages").find('li.webMessengerMessageGroup .direction_ltr p');
+  //console.log(performance.now() - bench);
+//console.log(chats);
+  var prev = chatCount;
+  chatCount = chats.length;
+
+  if (chatCount != prev) {
+    // Faster to just select all elements and just filter it here.
+    chats = chats.not('[formatted="true"]');
+    fullConvoFormat(chats);
+  } else {
+    // Remove old unneeded elements.
+    chats.splice(0,chatCount);
+  }
+}
+
+function fullConvoFormat(messages) {
+  messages = messages.filter( function() {
+    if(this.getElementsByClassName('emoticon').length) {
+       $(this).contents().each( function(index, el) {
+          if(el.nodeType === 3) {
+            // If el is a text node(3), wrap it in <span> to turn it into HTML.
+            // We use <span> here because the element we use to select messages
+            // is a <p> in full conversations.
+            var newEl = $(el).wrap("<span></span>").parent();
+            newEl.html(newEl.text());
+          }
+        });
+      return false;
+    }
+    return true;
+  });
+
+  messages.each( function(index, msg) {
+    $(msg).html(msg.innerText);
+    msg.setAttribute('formatted','true');
+  });
 }
