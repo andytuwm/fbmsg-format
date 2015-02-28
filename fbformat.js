@@ -1,10 +1,10 @@
 var chatCount = 0;
-var openChatInterval = 1000;
+var convoCount = 0;
 var openChat = false;
 var inFullChat = false;
+var openChatInterval = 1000;
 
 $(window).load( function() {
-  //checkUpdate();
 
   // Check if in full conversation view
   setInterval(function() {
@@ -32,13 +32,6 @@ $(window).load( function() {
     }
     //console.log(performance.now() - bench);
   },2000);
-
-  /*var injectedScript = document.createElement('script');
-  injectedScript.src = chrome.extension.getURL('inject.js');
-  injectedScript.setAttribute('async','');
-  injectedScript.setAttribute('type','text/javascript');
-  (document.head||document.documentElement).appendChild(injectedScript);
-  console.log(injectedScript);*/
 
 });
 
@@ -94,12 +87,13 @@ function process(messages) {
 // Check if new messages have appeared. If appeared, update the new message.
 function checkUpdate() {
 
-  var chats = $("#ChatTabsPagelet .opened .direction_ltr span span:not([formatted='true']");
+  var chats = $("#ChatTabsPagelet").find(".opened .direction_ltr span span");
 //console.log(chats);
   var prev = chatCount;
   chatCount = chats.length;
   // If there are more than previous count, there has been an update
   if (chatCount > prev) {
+    chats = chats.not('[formatted="true"]');
     filterMsgs(chats);
   } else {
     chats.splice(0,chatCount);
@@ -145,16 +139,16 @@ function fullCheckUpdate() {
   var chats = $("#webMessengerRecentMessages").find('li.webMessengerMessageGroup .direction_ltr p');
   //console.log(performance.now() - bench);
 //console.log(chats);
-  var prev = chatCount;
-  chatCount = chats.length;
+  var prev = convoCount;
+  convoCount = chats.length;
 
-  if (chatCount != prev) {
+  if (convoCount != prev) {
     // Faster to just select all elements and just filter it here.
     chats = chats.not('[formatted="true"]');
     fullConvoFormat(chats);
   } else {
     // Remove old unneeded elements.
-    chats.splice(0,chatCount);
+    chats.splice(0,convoCount);
   }
 }
 

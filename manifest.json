@@ -4,7 +4,7 @@
   "name": "fbmsg-format",
   "short_name": "fbmsg-format",
   "description": "Enable HTML formatting in Facebook messages through markdown syntax",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "minimum_chrome_version": "38",
 
   "icons": {
