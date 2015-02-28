@@ -18,11 +18,11 @@ $(window).load( function() {
   setTimeout(runCheck, openChatInterval);
 
   setInterval(function() {
-    //var bench = performance.now();
+    var bench = performance.now();
     if (openChat) {
       checkUpdate();
     }
-    //console.log(performance.now() - bench);
+    console.log(performance.now() - bench);
   },2000);
 
   setInterval(function() {
@@ -53,7 +53,7 @@ function filterMsgs(chat_lists) {
       if(this.innerHTML.match(/(^(<span data))|(<a)/)) {
         // Despite removing it from processing, we still need to mark it as formatted
         // to prevent the next poll from selecting this element.
-        $(this).attr('formatted','true');
+        this.setAttribute('formatted','true');
         return false;
       }
 
@@ -65,13 +65,13 @@ function filterMsgs(chat_lists) {
         // Split the span element into emoticons and text nodes, then check them one by one
         t.contents().each( function(index, el) {
           if(el.nodeType === 3) {
-            // If el is a text node(3), wrap it in <span> and turn it into HTML.
-            var newEl = $(el).wrap("<span></span>").parent();
+            // If el is a text node(3), wrap it in inline <p> to turn it into HTML.
+            var newEl = $(el).wrap("<p style='display:inline'></p>").parent();
             newEl.html(newEl.text());
           }
         });
         // Mark as formatted.
-        t.attr('formatted','true');
+        //t.attr('formatted','true');
         return false;
       }
       return true;
