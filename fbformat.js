@@ -1,23 +1,24 @@
 var openChatInterval = 1000;
 var openChat = false;
+var inFullChat = false;
 
 $(window).load( function() {
 
-  var convoCount = 0;
-  var chatCount = 0;
-  var inFullChat = false;
+  var convoCount = 0,
+      chatCount = 0;
+
+  // Define observer for Page Title to check if in full conversation view.
+  var titleObserver = startObserveTitle();
+  titleObserver.observe(document.getElementById('pageTitle'), {
+    characterData: true,
+    subtree: true,
+    childList: true
+  });
 
   // Add eventlistener listening for changing a full conversation thread view
   $('#content').on('focusout','.uiScrollableArea', function() {
     convoCount = 0;
   });
-
-  // Check if in full conversation view
-  setInterval(function() {
-    //var benchmark = performance.now();
-    inFullChat = isFullChat();
-    //console.log(performance.now() - benchmark);
-  },1000);
 
   // setTimeout used and called recursively rather than setInterval in order to
   // be able to change the timing interval between calls of checkOpen()
@@ -38,6 +39,11 @@ $(window).load( function() {
     }
     //console.log(performance.now() - bench);
   },2000);
+
+  $(window).bind('beforeunload', function(e) {
+    //TODO preparation for unloading listeners and observers
+    titleObserver.disconnect();
+  });
 
 });
 
@@ -126,18 +132,6 @@ var runCheck = function() {
     setTimeout(runCheck, openChatInterval);
 };
 
-// Check if current page is showing a full fb message conversation.
-function isFullChat() {
-  if(~$('#pageTitle').text().indexOf('Messages')) {
-    return true;
-  // ~ is a bitwise inverse. If indexOf() does not find substring,
-  // then it returns -1, a truthy value, which is all 1's. Inversing that
-  // obtains all 0's, which is 0, a false value. Thus ~ makes indexOf()
-  // useful for checking if a specific substring exists or not.
-  }
-  return false;
-}
-
 // Check if there are new messages in full conversation view.
 function fullCheckUpdate(convoCount) {
   //var bench = performance.now();
@@ -178,5 +172,21 @@ function fullConvoFormat(messages) {
   messages.each( function(index, msg) {
     $(msg).html(msg.innerText);
     msg.setAttribute('formatted','true');
+  });
+}
+
+// Title observer callback defined here
+function startObserveTitle() {
+  return observer = new window.WebKitMutationObserver(function(mutations) {
+    // ~ is a bitwise inverse. If indexOf() does not find substring,
+    // then it returns -1, a truthy value, which is all 1's. Inversing that
+    // obtains all 0's, which is 0, a false value. Thus ~ makes indexOf()
+    // useful for checking if a specific substring exists or not.
+    if(~mutations[0].addedNodes[0].data.indexOf('Messages')) {
+      inFullChat = true;
+    } else {
+      inFullChat = false;
+    }
+    return;
   });
 }
