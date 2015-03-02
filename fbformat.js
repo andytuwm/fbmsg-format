@@ -6,6 +6,11 @@ var openChatInterval = 1000;
 
 $(window).load( function() {
 
+  // Add eventlistener listening for changing a full conversation thread view
+  $('#content').on('focusout','.uiScrollableArea', function() {
+    convoCount = 0;
+  });
+
   // Check if in full conversation view
   setInterval(function() {
     //var benchmark = performance.now();
@@ -154,6 +159,7 @@ function fullCheckUpdate() {
 }
 
 function fullConvoFormat(messages) {
+  //console.log(messages);
   messages = messages.filter( function() {
     if(this.getElementsByTagName('span').length) {
        $(this).contents().each( function(index, el) {
