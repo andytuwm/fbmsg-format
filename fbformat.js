@@ -1,12 +1,11 @@
-var chatCount = 0;
-var convoCount = 0;
-
 var openChatInterval = 1000;
+var openChat = false;
 
 $(window).load( function() {
 
+  var convoCount = 0;
+  var chatCount = 0;
   var inFullChat = false;
-  var openChat = false;
 
   // Add eventlistener listening for changing a full conversation thread view
   $('#content').on('focusout','.uiScrollableArea', function() {
@@ -27,7 +26,7 @@ $(window).load( function() {
   setInterval(function() {
     //var bench = performance.now();
     if (openChat) {
-      checkUpdate();
+      checkUpdate(chatCount);
     }
     //console.log(performance.now() - bench);
   },2000);
@@ -35,7 +34,7 @@ $(window).load( function() {
   setInterval(function() {
     //var bench = performance.now();
     if (inFullChat) {
-      fullCheckUpdate();
+      fullCheckUpdate(convoCount);
     }
     //console.log(performance.now() - bench);
   },2000);
@@ -93,7 +92,7 @@ function process(messages) {
 }
 
 // Check if new messages have appeared. If appeared, update the new message.
-function checkUpdate() {
+function checkUpdate(chatCount) {
 
   var chats = $("#ChatTabsPagelet").find(".opened .direction_ltr span span");
 //console.log(chats);
@@ -140,7 +139,7 @@ function isFullChat() {
 }
 
 // Check if there are new messages in full conversation view.
-function fullCheckUpdate() {
+function fullCheckUpdate(convoCount) {
   //var bench = performance.now();
   var chats = $("#webMessengerRecentMessages").find('li.webMessengerMessageGroup .direction_ltr p');
   //console.log(performance.now() - bench);
