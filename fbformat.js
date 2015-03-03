@@ -1,4 +1,3 @@
-var openChatInterval = 1000;
 var openChat = false;
 var inFullChat = false;
 
@@ -15,14 +14,17 @@ $(window).load( function() {
     childList: true
   });
 
-  // Add eventlistener listening for changing a full conversation thread view
+  // Add eventlistener listening for changing a full conversation thread view.
   $('#content').on('focusout','.uiScrollableArea', function() {
     convoCount = 0;
   });
 
-  // setTimeout used and called recursively rather than setInterval in order to
-  // be able to change the timing interval between calls of checkOpen()
-  setTimeout(runCheck, openChatInterval);
+  // Define observer for checking if a chat tab is open or not.
+  var openchatObserver = startObserveOpenChat();
+  openchatObserver.observe($('#ChatTabsPagelet').find('.videoCallEnabled')[0], {
+    subtree: true,
+    attributes: true
+  });
 
   setInterval(function() {
     //var bench = performance.now();
@@ -40,9 +42,10 @@ $(window).load( function() {
     //console.log(performance.now() - bench);
   },2000);
 
+  //TODO preparation for unloading listeners and observers
   $(window).bind('beforeunload', function(e) {
-    //TODO preparation for unloading listeners and observers
     titleObserver.disconnect();
+    openchatObserver.disconnect();
   });
 
 });
@@ -126,12 +129,6 @@ function checkOpen() {
   }
 }
 
-// Function to assist in changing interval time of checkOpen()
-var runCheck = function() {
-    openChat = checkOpen();
-    setTimeout(runCheck, openChatInterval);
-};
-
 // Check if there are new messages in full conversation view.
 function fullCheckUpdate(convoCount) {
   //var bench = performance.now();
@@ -188,5 +185,29 @@ function startObserveTitle() {
       inFullChat = false;
     }
     return;
+  });
+}
+
+function startObserveOpenChat() {
+  return observer = new window.WebKitMutationObserver(function(mutations) {
+    var mLength = mutations.length;
+  	for(var i = 0; i < mLength; i++) {
+  	  if(mutations[i].attributeName == "class") {
+  	    /*var mutationTarget = mutations[i].target;
+  	    console.log(mutationTarget);
+  	    if(~mutationTarget.className.indexOf('fbNub')) {
+  	      openChat = mutationTarget.classList.contains('opened');
+  	      console.log(openChat);
+  	      break;
+  	    }*/
+  	    if($("#ChatTabsPagelet").find(".opened").length){
+  	      openChat = true;
+  	      break;
+  	    } else {
+  	      openChat = false;
+  	      break;
+  	    }
+  	  }
+  	}
   });
 }
