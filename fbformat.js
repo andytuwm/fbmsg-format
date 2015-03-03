@@ -10,7 +10,6 @@ $(window).load( function() {
   var titleObserver = startObserveTitle();
   titleObserver.observe(document.getElementById('pageTitle'), {
     characterData: true,
-    subtree: true,
     childList: true
   });
 
@@ -113,19 +112,6 @@ function checkUpdate(chatCount) {
     filterMsgs(chats);
   } else {
     chats.splice(0,chatCount);
-  }
-}
-
-// Check if any chat tabs are open or not
-function checkOpen() {
-  var openedChats = $("#ChatTabsPagelet").find(".opened");
-  //console.log(openedChats);
-  if (openedChats.length) {
-    openChatInterval = 5000;
-    return true;
-  } else {
-    openChatInterval = 1000;
-    return false;
   }
 }
 
