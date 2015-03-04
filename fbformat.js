@@ -22,7 +22,8 @@ $(window).load( function() {
   var openchatObserver = startObserveOpenChat();
   openchatObserver.observe($('#ChatTabsPagelet').find('.videoCallEnabled')[0], {
     subtree: true,
-    attributes: true
+    attributes: true,
+    attributeFilter: ['class']
   });
 
   setInterval(function() {
@@ -158,7 +159,7 @@ function fullConvoFormat(messages) {
   });
 }
 
-// Title observer callback defined here
+// Title observer callback
 function startObserveTitle() {
   return observer = new window.WebKitMutationObserver(function(mutations) {
     // ~ is a bitwise inverse. If indexOf() does not find substring,
@@ -174,26 +175,18 @@ function startObserveTitle() {
   });
 }
 
+// Open chat observer callback
 function startObserveOpenChat() {
   return observer = new window.WebKitMutationObserver(function(mutations) {
     var mLength = mutations.length;
   	for(var i = 0; i < mLength; i++) {
-  	  if(mutations[i].attributeName == "class") {
-  	    /*var mutationTarget = mutations[i].target;
-  	    console.log(mutationTarget);
-  	    if(~mutationTarget.className.indexOf('fbNub')) {
-  	      openChat = mutationTarget.classList.contains('opened');
-  	      console.log(openChat);
-  	      break;
-  	    }*/
-  	    if($("#ChatTabsPagelet").find(".opened").length){
-  	      openChat = true;
-  	      break;
-  	    } else {
-  	      openChat = false;
-  	      break;
-  	    }
-  	  }
+	    if($("#ChatTabsPagelet").find(".opened").length){
+	      openChat = true;
+	      break;
+	    } else {
+	      openChat = false;
+	      break;
+	    }
   	}
   });
 }
