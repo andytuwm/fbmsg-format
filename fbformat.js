@@ -2,9 +2,7 @@ var openChat = false;
 var inFullChat = false;
 
 $(window).load( function() {
-
-  var convoCount = 0,
-      chatCount = 0;
+  var convoCount = 0;
 
   // Define observer for Page Title to check if in full conversation view.
   var titleObserver = startObserveTitle();
@@ -18,102 +16,65 @@ $(window).load( function() {
     convoCount = 0;
   });
 
-  // Define observer for checking if a chat tab is open or not.
-  var openchatObserver = startObserveOpenChat();
-  openchatObserver.observe($('#ChatTabsPagelet').find('.videoCallEnabled')[0], {
+  // Process messages in chat tabs that are already open when Facebook is loaded, once.
+  initialProcess();
+  // Define observer for any newly loaded messages.
+  var chatObserver = startObserveChat();
+  chatObserver.observe($('#ChatTabsPagelet').find('.videoCallEnabled')[0], {
     subtree: true,
-    attributes: true,
-    attributeFilter: ['class']
+    childList: true
   });
 
   setInterval(function() {
-    //var bench = performance.now();
-    if (openChat) {
-      checkUpdate(chatCount);
-    }
-    //console.log(performance.now() - bench);
-  },2000);
-
-  setInterval(function() {
-    //var bench = performance.now();
     if (inFullChat) {
       fullCheckUpdate(convoCount);
     }
-    //console.log(performance.now() - bench);
   },2000);
 
-  //TODO preparation for unloading listeners and observers
+  // Unload observers when leaving page
   $(window).bind('beforeunload', function(e) {
     titleObserver.disconnect();
-    openchatObserver.disconnect();
+    chatObserver.disconnect();
   });
 
 });
 
-// Filters out extra <span>/<a> tags from the jQuery object passed in
-function filterMsgs(chat_lists) {
-    //console.log(chat_lists);
+// Legacy function originally used to process messages before DOM mutation
+// observers were used. Streamlined and kept because it's useful for processing
+// messages that were initially loaded when Facebook was started, since those
+// are not detected by mutation observers.
+function initialProcess() {
+
+    var chat_lists = $("#ChatTabsPagelet").find(".opened .direction_ltr span span");
     chat_lists = chat_lists.not('.emoticon,.emoticon_text');
     chat_lists = chat_lists.filter( function() {
 
       // If <span> starts with <span data and/or has a link, throw that
       // element away since there is another <span> that will be processed.
       if(this.innerHTML.match(/(^(<span data))|(<a)/)) {
-        // Despite removing it from processing, we still need to mark it as formatted
-        // to prevent the next poll from selecting this element.
-        this.setAttribute('formatted','true');
         return false;
       }
 
-      // If this element has two or more children, it must contain emoticons.
-      // Ignore <span>'s that have only one children; emoticons consist of two <span>'s.
-      // We will process this first before process() because it's easier.
-
+      // If this element has a child <span> element, it must contain emoticons.
       if (this.getElementsByTagName('span').length) {
         var t = $(this);
-        // Split the span element into emoticons and text nodes, then check them one by one
+        // Split the span element into emoticons and text nodes, then process them one by one
         t.contents().each( function(index, el) {
           if(el.nodeType === 3) {
-            // If el is a text node(3), wrap it in inline <p> to turn it into HTML.
-            var newEl = $(el).wrap("<p style='display:inline'></p>").parent();
+            // If el is a text node(3), wrap it in <span> to turn it into HTML.
+            var newEl = $(el).wrap("<span></span>").parent();
             newEl.html(newEl.text());
           }
         });
-        // Mark as formatted.
-        //t.attr('formatted','true');
         return false;
       }
       return true;
     });
-  //console.log(chat_lists);
-  process(chat_lists);
-}
 
-// Set the innerText as innerHTML so that fb will display it as HTML
-function process(messages) {
-
-  messages.each( function(index, msg) {
+  // Set the innerText as innerHTML so that fb will display it as HTML
+  chat_lists.each( function(index, msg) {
     $(msg).html(msg.innerText);
-    // Mark it as formatted so that this element is not selected on next poll,
-    // saving on processing time
-    msg.setAttribute('formatted','true');
   });
-}
-
-// Check if new messages have appeared. If appeared, update the new message.
-function checkUpdate(chatCount) {
-
-  var chats = $("#ChatTabsPagelet").find(".opened .direction_ltr span span");
-//console.log(chats);
-  var prev = chatCount;
-  chatCount = chats.length;
-  // If there are more than previous count, there has been an update
-  if (chatCount > prev) {
-    chats = chats.not('[formatted="true"]');
-    filterMsgs(chats);
-  } else {
-    chats.splice(0,chatCount);
-  }
 }
 
 // Check if there are new messages in full conversation view.
@@ -168,25 +129,34 @@ function startObserveTitle() {
     // useful for checking if a specific substring exists or not.
     if(~mutations[0].addedNodes[0].data.indexOf('Messages')) {
       inFullChat = true;
+      return;
     } else {
       inFullChat = false;
+      return;
     }
-    return;
   });
 }
 
-// Open chat observer callback
-function startObserveOpenChat() {
+// Chat tabs observer callback
+function startObserveChat() {
   return observer = new window.WebKitMutationObserver(function(mutations) {
-    var mLength = mutations.length;
-  	for(var i = 0; i < mLength; i++) {
-	    if($("#ChatTabsPagelet").find(".opened").length){
-	      openChat = true;
-	      break;
-	    } else {
-	      openChat = false;
-	      break;
-	    }
-  	}
+  	mutations.forEach(function( mutation ) {
+  	  // Observes for newly loaded messages as wells as newely sent/received ones.
+  	  if(mutation.target.parentElement.className == "conversation") {
+      	var node = $(mutation.addedNodes[0]).find('span span');
+      	var text = node.text();
+      	node.html(text);
+  	  }
+      // Observes for fb overwriting initial formatting when emoticons are used.
+  	  if(mutation.target.localName == "span" && mutation.target.classList.length == 1) {
+    	  $(mutation.addedNodes[0].children[0]).contents().each(function(index, el) {
+          if(el.nodeType === 3) {
+            // Wrap in <span> to ensure it formats as HTML
+            var newEl = $(el).wrap("<span></span>").parent();
+            newEl.html(newEl.text());
+          }
+        });
+  	  }
+  	});
   });
 }
