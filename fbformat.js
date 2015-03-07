@@ -29,7 +29,7 @@ $(window).load( function() {
     if (inFullChat) {
       fullCheckUpdate(convoCount);
     }
-  },2000);
+  },1337);
 
   // Unload observers when leaving page
   $(window).bind('beforeunload', function(e) {
@@ -79,10 +79,7 @@ function initialProcess() {
 
 // Check if there are new messages in full conversation view.
 function fullCheckUpdate(convoCount) {
-  //var bench = performance.now();
   var chats = $("#webMessengerRecentMessages").find('li.webMessengerMessageGroup .direction_ltr p');
-  //console.log(performance.now() - bench);
-//console.log(chats);
   var prev = convoCount;
   convoCount = chats.length;
 
@@ -149,6 +146,8 @@ function startObserveChat() {
   	  }
       // Observes for fb overwriting initial formatting when emoticons are used.
   	  if(mutation.target.localName == "span" && mutation.target.classList.length == 1) {
+  	    // Some nodes need to be traversed because the target node the observer
+  	    // detected a change on is an ancestor of the actual node we need.
     	  $(mutation.addedNodes[0].children[0]).contents().each(function(index, el) {
           if(el.nodeType === 3) {
             // Wrap in <span> to ensure it formats as HTML
