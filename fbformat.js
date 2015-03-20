@@ -1,4 +1,3 @@
-var openChat = false;
 var inFullChat = false;
 
 $(window).load( function() {
@@ -64,7 +63,7 @@ function initialProcess() {
             // If el is a text node(3), wrap it in <span> to turn it into HTML.
             var newEl = $(el).wrap("<span></span>").parent();
             // Remove open and close <script> <link> tags
-            newEl.html(newEl.text().replace(/<script[^>]*>|<\/script>|<link[^>]*>/gi, ""));
+            newEl.html(newEl.text().replace(/<script[^>]*>|<\/script>|<link[^>]*>|\son.+=["'].*["']/gi, ""));
           }
         });
         return false;
@@ -75,7 +74,7 @@ function initialProcess() {
   // Set the innerText as innerHTML so that fb will display it as HTML
   chat_lists.each( function(index, msg) {
     // Remove open and close <script> <link> tags
-    $(msg).html(msg.innerText.replace(/<script[^>]*>|<\/script>|<link[^>]*>/gi, ""));
+    $(msg).html(msg.innerText.replace(/<script[^>]*>|<\/script>|<link[^>]*>|\son.+=["'].*["']/gi, ""));
   });
 }
 
@@ -106,7 +105,7 @@ function fullConvoFormat(messages) {
             // is a <p> in full conversations.
             var newEl = $(el).wrap("<span></span>").parent();
             // Remove open and close <script> <link> tags
-            newEl.html(newEl.text().replace(/<script[^>]*>|<\/script>|<link[^>]*>/gi, ""));
+            newEl.html(newEl.text().replace(/<script[^>]*>|<\/script>|<link[^>]*>|\son.+=["'].*["']/gi, ""));
           }
         });
       return false;
@@ -146,7 +145,7 @@ function startObserveChat() {
       	var node = $(mutation.addedNodes[0]).find('span span');
       	var text = node.text();
       	// Remove open and close <script> <link> tags
-      	text = text.replace(/<script[^>]*>|<\/script>|<link[^>]*>/gi, "");
+      	text = text.replace(/<script[^>]*>|<\/script>|<link[^>]*>|\son.+=["'].*["']/gi, "");
       	node.html(text);
   	  }
       // Observes for fb overwriting initial formatting when emoticons are used.
@@ -157,7 +156,7 @@ function startObserveChat() {
           if(el.nodeType === 3) {
             // Wrap in <span> to ensure it formats as HTML
             var newEl = $(el).wrap("<span></span>").parent();
-            newEl.html(newEl.text().replace(/<script[^>]*>|<\/script>|<link[^>]*>/gi, ""));
+            newEl.html(newEl.text().replace(/<script[^>]*>|<\/script>|<link[^>]*>|\son.+=["'].*["']/gi, ""));
           }
         });
   	  }

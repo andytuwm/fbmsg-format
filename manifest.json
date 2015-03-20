@@ -1,11 +1,11 @@
 {
   "manifest_version": 2,
   "author": "Andy Tu",
-  "name": "fbmsg-format",
-  "short_name": "fbmsg-format",
-  "description": "Enable HTML formatting in Facebook messages through markdown syntax",
-  "version": "0.4.0",
-  "minimum_chrome_version": "38",
+  "name": "fbformat",
+  "short_name": "fbformat",
+  "description": "Enable HTML formatting in Facebook messages",
+  "version": "0.4.1",
+  "minimum_chrome_version": "36",
 
   "icons": {
     "128": "assets/icon_128.png"
